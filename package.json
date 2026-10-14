@@ -1,0 +1,13 @@
+{
+  "name": "listing-kit",
+  "version": "0.1.0",
+  "description": "One store.json for your App Store and Google Play listings, checked before the stores see it.",
+  "type": "module",
+  "bin": { "listing-kit": "cli.mjs" },
+  "files": ["cli.mjs", "rules.mjs", "stores.mjs", "shots.mjs", "README.md", "LICENSE"],
+  "scripts": { "test": "node test.mjs" },
+  "engines": { "node": ">=20" },
+  "keywords": ["app-store", "google-play", "app-store-connect", "store-listing", "aso", "screenshots", "capacitor", "fastlane-alternative"],
+  "author": "THE RISE COLLECTION LLC",
+  "license": "MIT"
+}
