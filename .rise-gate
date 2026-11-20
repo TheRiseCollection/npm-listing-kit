@@ -1,1 +1,19 @@
+# 11-20-2026 (QA hardening 96, 97, 98): release hygiene, checked before anything is published.
+# Dependencies are never committed; the version is semver, has a CHANGELOG.md entry, and is
+# never behind what npm already serves (a repo behind npm means the published code isn't here).
+! git ls-files | grep -qE '(^|/)node_modules/' || { echo "node_modules is committed; untrack it"; exit 1; }
+node -e '
+const fs = require("fs"), v = require("./package.json").version;
+if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(v)) { console.error(`version ${v} is not semver`); process.exit(1); }
+const log = fs.existsSync("CHANGELOG.md") ? fs.readFileSync("CHANGELOG.md", "utf8") : "";
+if (!log.includes(`## ${v}`)) { console.error(`CHANGELOG.md has no "## ${v}" entry`); process.exit(1); }' || exit 1
+npv=$(npm view "$(node -p 'require("./package.json").name')" version 2>/dev/null)
+if [ -n "$npv" ]; then
+  node -e '
+const [a, b] = process.argv.slice(1).map(s => s.split(/[.-]/).slice(0, 3).map(Number));
+for (let i = 0; i < 3; i++) { if (a[i] > b[i]) process.exit(0); if (a[i] < b[i]) { console.error(`repo ${process.argv[1]} is behind npm ${process.argv[2]}`); process.exit(1); } }' \
+    "$(node -p 'require("./package.json").version')" "$npv" || exit 1
+fi
+echo "release checks: no node_modules, semver, changelog, not behind npm ${npv:-(not on npm or unreachable)}"
+
 node test.mjs
